@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Adaptive Diagnostic Test</title>
+
+<style>
+
+body{
+font-family:Arial;
+max-width:700px;
+margin:auto;
+margin-top:40px;
+}
+
+button{
+padding:10px;
+margin:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Adaptive Diagnostic Test</h1>
+
+<input id="name" placeholder="Enter your name"/>
+<button onclick="startTest()">Start Test</button>
+
+<div id="quiz"></div>
+
+<script>
+
+let sessionId = null
+
+async function startTest(){
+
+ const name = document.getElementById("name").value
+
+ const res = await fetch("http://localhost:8000/api/v1/sessions",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({student_name:name})
+ })
+
+ const data = await res.json()
+
+ sessionId = data.session_id
+
+ showQuestion(data.first_question)
+
+}
+
+
+function showQuestion(q){
+
+ document.getElementById("quiz").innerHTML =
+
+ `
+ <h3>${q.text}</h3>
+
+ <button onclick="submitAnswer('${q.id}','A')">${q.options.A}</button><br>
+
+ <button onclick="submitAnswer('${q.id}','B')">${q.options.B}</button><br>
+
+ <button onclick="submitAnswer('${q.id}','C')">${q.options.C}</button><br>
+
+ <button onclick="submitAnswer('${q.id}','D')">${q.options.D}</button>
+ `
+
+}
+
+
+async function submitAnswer(questionId,option){
+
+ const res = await fetch("http://localhost:8000/api/v1/sessions/submit",{
+
+   method:"POST",
+
+   headers:{"Content-Type":"application/json"},
+
+   body:JSON.stringify({
+
+      session_id:sessionId,
+      question_id:questionId,
+      selected_option:option
+
+   })
+
+ })
+
+ const data = await res.json()
+
+ if(data.is_complete){
+
+   document.getElementById("quiz").innerHTML =
+
+   `
+   <h2>Test Completed</h2>
+
+   <p><b>Ability Score:</b> ${data.updated_ability}</p>
+
+   <h3>AI Learning Plan</h3>
+
+   <pre>${data.learning_plan}</pre>
+   `
+
+ }
+
+ else{
+
+   showQuestion(data.next_question)
+
+ }
+
+}
+
+</script>
+
+</body>
+
+</html>
