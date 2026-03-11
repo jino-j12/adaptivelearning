@@ -85,7 +85,7 @@ adaptive-diagnostic-engine
 5. A new question is selected with adjusted difficulty.
 6. After completing the test, the system generates a personalized learning plan using AI.
 
-git clone https://github.com/yourusername/adaptive-diagnostic-engine.git
+git clone https://github.com/jino-j12/adaptivelearning.git
 
 cd adaptive-diagnostic-engine
 
